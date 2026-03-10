@@ -33,9 +33,9 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.s
 	@mkdir -p $(OBJ_DIR)
 	$(AS) $(ASFLAGS) $< -o $@
 
-# Step 3: Link everything into the ROM
+# Linking - Added -t none so it doesn't try to pull the default library's crt0
 $(NAME).nes: $(OBJS)
-	$(LD) $(LDFLAGS) $^ -o $@ nes.lib
+	$(LD) -C nes.cfg $^ nes.lib -o $@
 
 clean:
 	rm -rf $(OBJ_DIR) $(SRC_DIR)/*.s $(NAME).nes
