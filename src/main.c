@@ -1,12 +1,3 @@
-/* --- NES REGISTER DEFINITIONS --- */
-#define PPU_CTRL    *((unsigned char*)0x2000)
-#define PPU_MASK    *((unsigned char*)0x2001)
-#define PPU_STATUS  *((unsigned char*)0x2002)
-#define PPU_SCROLL  *((unsigned char*)0x2005)
-#define PPU_ADDR    *((unsigned char*)0x2006)
-#define PPU_DATA    *((unsigned char*)0x2007)
-#define OAM_DMA     *((unsigned char*)0x4014)
-#define JOYPAD1     *((unsigned char*)0x4016)
 #define PPU_MASK    *((unsigned char*)0x2001)
 #define PPU_ADDR    *((unsigned char*)0x2006)
 #define PPU_DATA    *((unsigned char*)0x2007)
