@@ -1,54 +1,51 @@
-// 1. Define NES PPU Registers
-#define PPU_CTRL    *((unsigned char*)0x2000)
-#define PPU_MASK    *((unsigned char*)0x2001)
-#define PPU_STATUS  *((unsigned char*)0x2002)
-#define PPU_SCROLL  *((unsigned char*)0x2005)
-#define PPU_ADDR    *((unsigned char*)0x2006)
-#define PPU_DATA    *((unsigned char*)0x2007)
-#define OAM_DMA     *((unsigned char*)0x4014)
+#define CTRL_PORT1  *((unsigned char*)0x4016)
 
-// 2. Define Colors
-#define COLOR_WHITE 0x30
-#define COLOR_BLUE  0x21
+// Button Bitmasks
+#define BUTTON_A      0x80
+#define BUTTON_B      0x40
+#define BUTTON_SELECT 0x20
+#define BUTTON_START  0x10
+#define BUTTON_UP     0x08
+#define BUTTON_DOWN   0x04
+#define BUTTON_LEFT   0x02
+#define BUTTON_RIGHT  0x01
 
-// 3. Global Variables
-unsigned char player_x = 120;
-unsigned char player_y = 120;
-
-// 4. Function to wait for the screen to finish drawing
-void wait_vblank() {
-    while (!(PPU_STATUS & 0x80));
+unsigned char read_controller() {
+    unsigned char state = 0;
+    int i;
+    // Latch the controller state
+    CTRL_PORT1 = 1;
+    CTRL_PORT1 = 0;
+    // Read 8 buttons
+    for (i = 0; i < 8; ++i) {
+        state <<= 1;
+        state |= (CTRL_PORT1 & 1);
+    }
+    return state;
 }
 
 void main (void) {
-    // Turn off screen to load data
-    PPU_MASK = 0x00; 
+    unsigned char buttons;
     
-    // Load Palette
-    PPU_ADDR = 0x3F; PPU_ADDR = 0x00;
-    PPU_DATA = COLOR_BLUE; // Background
-    
-    PPU_ADDR = 0x3F; PPU_ADDR = 0x11; 
-    PPU_DATA = COLOR_WHITE; // Sprite Color
-
-    // Turn screen on (Enable Sprites + Background)
-    PPU_MASK = 0x1E; 
+    // ... (Keep your existing PPU/Palette initialization code here) ...
 
     while (1) {
         wait_vblank();
-        
-        // Push the sprite data to the PPU
         OAM_DMA = 0x02; 
-        
-        // Game Logic: Move the player right
-        player_x++; 
-        
-        // Update Sprite 0 X-coordinate in RAM
-        *((unsigned char*)0x0203) = player_x;
-        // Update Sprite 0 Y-coordinate in RAM
-        *((unsigned char*)0x0200) = player_y;
 
-        // Reset Scroll (Important: prevents screen shaking)
+        buttons = read_controller();
+
+        // Manual Control!
+        if (buttons & BUTTON_RIGHT) player_x++;
+        if (buttons & BUTTON_LEFT)  player_x--;
+        if (buttons & BUTTON_UP)    player_y--;
+        if (buttons & BUTTON_DOWN)  player_y++;
+
+        // Update Sprite 0 position in RAM ($0200)
+        *((unsigned char*)0x0200) = player_y;
+        *((unsigned char*)0x0203) = player_x;
+
+        // Reset Scroll
         PPU_ADDR = 0x00; PPU_ADDR = 0x00;
         PPU_SCROLL = 0x00; PPU_SCROLL = 0x00;
     }
