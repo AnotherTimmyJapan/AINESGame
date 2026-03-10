@@ -42,4 +42,24 @@ irq:
     .word irq    ; $FFFE (IRQ)
 
 .segment "CHARS"
-    .res 8192, $AA ; Fill with pattern
+    ; Tile 0: A solid 8x8 square (The "Player")
+    .byte %11111111
+    .byte %11111111
+    .byte %11111111
+    .byte %11111111
+    .byte %11111111
+    .byte %11111111
+    .byte %11111111
+    .byte %11111111
+    ; The NES uses 2 bytes per row for color depth, 
+    ; so we need another 8 bytes for the second plane.
+    .byte %00000000
+    .byte %00000000
+    .byte %00000000
+    .byte %00000000
+    .byte %00000000
+    .byte %00000000
+    .byte %00000000
+    .byte %00000000
+    
+    .res 8176, $00 ; Fill the rest of the 8KB with empty space (black)
